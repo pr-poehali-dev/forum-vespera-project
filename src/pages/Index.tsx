@@ -34,7 +34,7 @@ const Index = () => {
 
   const categories = [
     { name: 'Новости', icon: 'Newspaper', locked: true },
-    { name: 'Видеочат', icon: 'Video' },
+    { name: 'Общение', icon: 'MessageSquare' },
     { name: 'Реклама', icon: 'Megaphone' },
   ];
 
@@ -160,13 +160,6 @@ const Index = () => {
                 ))}
               </div>
             </ScrollArea>
-
-            <div className="mt-4 pt-4 border-t border-white/10">
-              <div className="glass rounded-lg p-3 text-center">
-                <p className="text-xs text-gray-400 mb-1">Ваш рейтинг</p>
-                <p className="text-2xl font-bold text-primary">{currentUser.rating}</p>
-              </div>
-            </div>
           </aside>
 
           <main className="flex-1 flex flex-col">
@@ -177,11 +170,6 @@ const Index = () => {
               </div>
 
               <div className="flex items-center gap-4">
-                <Button className="glass-hover border border-white/10">
-                  <Icon name="Plus" className="mr-2" size={18} />
-                  Создать пост
-                </Button>
-
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-3 glass-hover px-3 py-2 rounded-lg">
@@ -196,17 +184,32 @@ const Index = () => {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="glass border border-white/20 w-56" align="end">
+                    <div className="px-2 py-2 mb-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-sm">{currentUser.username}</span>
+                        {currentUser.role !== 'USER' && (
+                          <Badge className={`${getRoleBadgeColor(currentUser.role)} text-white text-[10px] px-1.5 py-0`}>
+                            {currentUser.role}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <Icon name="Star" size={12} className="text-primary" />
+                        <span>{currentUser.rating} рейтинг</span>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem className="hover:glass-hover cursor-pointer">
                       <Icon name="User" className="mr-2" size={16} />
                       Мой профиль
                     </DropdownMenuItem>
                     <DropdownMenuItem className="hover:glass-hover cursor-pointer">
-                      <Icon name="Settings" className="mr-2" size={16} />
-                      Настройки
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:glass-hover cursor-pointer">
                       <Icon name="PenSquare" className="mr-2" size={16} />
                       Создать пост
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:glass-hover cursor-pointer">
+                      <Icon name="Settings" className="mr-2" size={16} />
+                      Настройки
                     </DropdownMenuItem>
                     {(currentUser.role === 'OWNER' || currentUser.role === 'ADMIN') && (
                       <>
