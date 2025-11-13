@@ -31,6 +31,10 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('Новости');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showCreatePostModal, setShowCreatePostModal] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
 
   const categories = [
     { name: 'Новости', icon: 'Newspaper', locked: true },
@@ -136,8 +140,7 @@ const Index = () => {
         <div className="flex h-screen">
           <aside className="w-64 glass border-r border-white/10 p-4 flex flex-col">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold neon-text mb-2">Forum Vespera</h2>
-              <p className="text-xs text-gray-400">Форум нового поколения</p>
+              <h2 className="text-lg font-semibold text-gray-300">Vespera</h2>
             </div>
 
             <ScrollArea className="flex-1">
@@ -201,29 +204,48 @@ const Index = () => {
                       </div>
                     </div>
                     <DropdownMenuSeparator className="bg-white/10" />
-                    <DropdownMenuItem className="hover:glass-hover cursor-pointer">
+                    <DropdownMenuItem 
+                      className="hover:glass-hover cursor-pointer"
+                      onClick={() => setShowProfileModal(true)}
+                    >
                       <Icon name="User" className="mr-2" size={16} />
                       Мой профиль
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:glass-hover cursor-pointer">
+                    <DropdownMenuItem 
+                      className="hover:glass-hover cursor-pointer"
+                      onClick={() => setShowCreatePostModal(true)}
+                    >
                       <Icon name="PenSquare" className="mr-2" size={16} />
                       Создать пост
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:glass-hover cursor-pointer">
+                    <DropdownMenuItem 
+                      className="hover:glass-hover cursor-pointer"
+                      onClick={() => setShowSettingsModal(true)}
+                    >
                       <Icon name="Settings" className="mr-2" size={16} />
                       Настройки
                     </DropdownMenuItem>
                     {(currentUser.role === 'OWNER' || currentUser.role === 'ADMIN') && (
                       <>
                         <DropdownMenuSeparator className="bg-white/10" />
-                        <DropdownMenuItem className="hover:glass-hover cursor-pointer text-primary">
+                        <DropdownMenuItem 
+                          className="hover:glass-hover cursor-pointer text-primary"
+                          onClick={() => setShowAdminModal(true)}
+                        >
                           <Icon name="Shield" className="mr-2" size={16} />
                           Админ-панель
-                    </DropdownMenuItem>
+                        </DropdownMenuItem>
                       </>
                     )}
                     <DropdownMenuSeparator className="bg-white/10" />
-                    <DropdownMenuItem className="hover:glass-hover cursor-pointer text-red-400">
+                    <DropdownMenuItem 
+                      className="hover:glass-hover cursor-pointer text-red-400"
+                      onClick={() => {
+                        setIsAuthenticated(false);
+                        setCurrentUser(null);
+                        setShowAuthModal(true);
+                      }}
+                    >
                       <Icon name="LogOut" className="mr-2" size={16} />
                       Выйти
                     </DropdownMenuItem>
@@ -303,6 +325,139 @@ const Index = () => {
           </main>
         </div>
       )}
+
+      <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
+        <DialogContent className="glass border-2 border-white/20 sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Мой профиль</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="w-20 h-20 ring-2 ring-primary">
+                <AvatarImage src={currentUser?.avatar} />
+                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                  {currentUser?.username.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-xl font-semibold">{currentUser?.username}</h3>
+                  {currentUser && currentUser.role !== 'USER' && (
+                    <Badge className={`${getRoleBadgeColor(currentUser.role)} text-white`}>
+                      {currentUser.role}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <Icon name="Star" size={16} className="text-primary" />
+                  <span>{currentUser?.rating} рейтинг</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">ID: {currentUser?.id}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Button className="w-full glass-hover border border-white/10">
+                <Icon name="Upload" className="mr-2" size={18} />
+                Изменить аватар
+              </Button>
+              <Button className="w-full glass-hover border border-white/10">
+                <Icon name="Edit" className="mr-2" size={18} />
+                Изменить никнейм
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
+        <DialogContent className="glass border-2 border-white/20 sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Настройки</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <h4 className="font-semibold">Оформление</h4>
+              <Button className="w-full glass-hover border border-white/10 justify-start">
+                <Icon name="Palette" className="mr-2" size={18} />
+                Изменить тему
+              </Button>
+              <Button className="w-full glass-hover border border-white/10 justify-start">
+                <Icon name="Image" className="mr-2" size={18} />
+                Изменить баннер профиля
+              </Button>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold">Уведомления</h4>
+              <Button className="w-full glass-hover border border-white/10 justify-start">
+                <Icon name="Bell" className="mr-2" size={18} />
+                Настроить уведомления
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCreatePostModal} onOpenChange={setShowCreatePostModal}>
+        <DialogContent className="glass border-2 border-white/20 sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Создать пост</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              Выберите ветку для размещения поста
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {categories.map((category) => (
+              <Button
+                key={category.name}
+                disabled={category.locked}
+                className="w-full glass-hover border border-white/10 justify-start h-auto py-4"
+              >
+                <Icon name={category.icon} className="mr-3" size={20} />
+                <div className="text-left">
+                  <div className="font-semibold">{category.name}</div>
+                  {category.locked && (
+                    <div className="text-xs text-gray-400">Только для администрации</div>
+                  )}
+                </div>
+                {category.locked && <Icon name="Lock" size={16} className="ml-auto text-gray-500" />}
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAdminModal} onOpenChange={setShowAdminModal}>
+        <DialogContent className="glass border-2 border-white/20 sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Icon name="Shield" className="text-primary" />
+              Админ-панель
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3 py-4">
+            <Button className="glass-hover border border-white/10 h-20 flex-col">
+              <Icon name="Search" size={24} className="mb-2" />
+              Поиск пользователей
+            </Button>
+            <Button className="glass-hover border border-white/10 h-20 flex-col">
+              <Icon name="UserPlus" size={24} className="mb-2" />
+              Добавить админа
+            </Button>
+            <Button className="glass-hover border border-white/10 h-20 flex-col">
+              <Icon name="Plus" size={24} className="mb-2" />
+              Добавить ветку
+            </Button>
+            <Button className="glass-hover border border-white/10 h-20 flex-col">
+              <Icon name="FileCheck" size={24} className="mb-2" />
+              Модерация постов
+            </Button>
+            <Button className="glass-hover border border-white/10 h-20 flex-col col-span-2">
+              <Icon name="Flag" size={24} className="mb-2" />
+              Модерация жалоб
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
