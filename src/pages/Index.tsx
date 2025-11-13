@@ -74,6 +74,7 @@ const Index = () => {
   ];
 
   const handleTelegramAuth = () => {
+    console.log('Telegram auth clicked');
     const mockUser: User = {
       id: 'usr_123',
       telegramId: '555444333',
@@ -85,6 +86,7 @@ const Index = () => {
     setCurrentUser(mockUser);
     setIsAuthenticated(true);
     setShowAuthModal(false);
+    console.log('Auth completed, user:', mockUser);
   };
 
   const getRoleBadgeColor = (role: string) => {
